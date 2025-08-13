@@ -44,7 +44,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Inspector\\MCPServer": "src/"
+            "Inspector\\MCPServer\\": "src/"
         }
     },
     "autoload-dev": {
