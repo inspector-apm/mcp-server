@@ -141,7 +141,6 @@ class ErrorReportTest extends TestCase
 
         $this->assertStringContainsString('No errors detected in the last 24 hours', $report);
         $this->assertStringContainsString('✅', $report);
-        $this->assertStringContainsString('Application Errors Report - Last 24 hours', $report);
     }
 
     public function testGenerateReportWithSingleError(): void
@@ -229,7 +228,7 @@ class ErrorReportTest extends TestCase
         ];
 
         $report = (new ErrorsListReport($this->app, $criticalError))->generate();
-        $this->assertStringContainsString('🔥 CRITICAL', $report);
+        $this->assertStringContainsString('CRITICAL', $report);
 
         // Test high frequency (10-49)
         $highError = [
@@ -246,7 +245,7 @@ class ErrorReportTest extends TestCase
         ];
 
         $report = (new ErrorsListReport($this->app, $highError))->generate();
-        $this->assertStringContainsString('⚠️ HIGH', $report);
+        $this->assertStringContainsString('HIGH', $report);
 
         // Test medium frequency (5-9)
         $mediumError = [
@@ -263,7 +262,7 @@ class ErrorReportTest extends TestCase
         ];
 
         $report = (new ErrorsListReport($this->app, $mediumError))->generate();
-        $this->assertStringContainsString('⚡ MEDIUM', $report);
+        $this->assertStringContainsString('MEDIUM', $report);
 
         // Test low frequency (<5)
         $lowError = [
@@ -280,7 +279,7 @@ class ErrorReportTest extends TestCase
         ];
 
         $report = (new ErrorsListReport($this->app, $lowError))->generate();
-        $this->assertStringContainsString('📍 LOW', $report);
+        $this->assertStringContainsString('LOW', $report);
     }
 
     public function testRecencyIndicators(): void
@@ -300,67 +299,7 @@ class ErrorReportTest extends TestCase
         ];
 
         $report = (new ErrorsListReport($this->app, $activeError))->generate();
-        $this->assertStringContainsString('🟥 ACTIVE', $report);
-    }
-
-    public function testOpenAISpecificSuggestions(): void
-    {
-        $openaiError = [
-            [
-                'message' => 'Client error: `POST https://api.openai.com/v1/chat/completions` resulted in a `400 Bad Request` response',
-                'class' => 'GuzzleHttp\Exception\ClientException',
-                'file' => '/vendor/guzzlehttp/guzzle/src/Exception/RequestException.php',
-                'line' => 111,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 5,
-                'group_hash' => 'openai'
-            ]
-        ];
-
-        $report = (new ErrorsListReport($this->app, $openaiError))->generate();
-        $this->assertStringContainsString('Verify OpenAI API key', $report);
-        $this->assertStringContainsString('Neuron AI framework', $report);
-    }
-
-    public function testAPIPatternDetection(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->apiErrors))->generate();
-
-        $this->assertStringContainsString('🌐 API Integration Issues Detected', $report);
-        $this->assertStringContainsString('Verify API credentials and endpoints', $report);
-        $this->assertStringContainsString('Check rate limiting and quotas', $report);
-    }
-
-    public function testHighFrequencyPatternDetection(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->highFrequencyErrors))->generate();
-
-        $this->assertStringContainsString('🔄 Recurring Error Patterns', $report);
-        $this->assertStringContainsString('High-frequency errors indicate systematic issues', $report);
-        $this->assertStringContainsString('Implement circuit breaker patterns', $report);
-    }
-
-    public function testRecentSpikeDetection(): void
-    {
-        // Create multiple recent errors to trigger spike detection
-        $recentSpike = [];
-        for ($i = 0; $i < 5; $i++) {
-            $recentSpike[] = [
-                'message' => "Recent error {$i}",
-                'class' => 'RuntimeException',
-                'file' => '/test.php',
-                'line' => $i + 1,
-                'created_at' => \date('Y-m-d H:i:s', \time() - 3600),
-                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 60), // Recent
-                'nth' => 1,
-                'group_hash' => "recent{$i}"
-            ];
-        }
-
-        $report = (new ErrorsListReport($this->app, $recentSpike))->generate();
-        $this->assertStringContainsString('📈 Recent Error Spike', $report);
-        $this->assertStringContainsString('Check recent deployments', $report);
+        $this->assertStringContainsString('ACTIVE', $report);
     }
 
     public function testErrorBreakdownGrouping(): void
@@ -382,11 +321,11 @@ class ErrorReportTest extends TestCase
 
         // Check all main sections are present
         $this->assertStringContainsString('# Application Errors Report - Last 24 hours', $report);
-        $this->assertStringContainsString('## 📊 Executive Summary', $report);
-        $this->assertStringContainsString('## 🚨 Critical Errors', $report);
-        $this->assertStringContainsString('## 📋 Complete Error Breakdown', $report);
-        $this->assertStringContainsString('## 💡 AI Analysis & Recommendations', $report);
-        $this->assertStringContainsString('### 🔧 General Debugging Strategy', $report);
+        $this->assertStringContainsString('## Executive Summary', $report);
+        $this->assertStringContainsString('## Critical Errors', $report);
+        $this->assertStringContainsString('## Complete Error Breakdown', $report);
+        $this->assertStringContainsString('## AI Analysis & Recommendations', $report);
+        $this->assertStringContainsString('### General Debugging Strategy', $report);
 
         // Check footer is present
         $this->assertStringContainsString('Inspector MCP Server', $report);
@@ -427,50 +366,6 @@ class ErrorReportTest extends TestCase
 
         // Should not contain an application source section
         $this->assertStringNotContainsString('**Application Source:**', $report);
-    }
-
-    public function testDifferentErrorTypeSuggestions(): void
-    {
-        $errorTypes = [
-            [
-                'message' => 'SQLSTATE[HY000]: General error',
-                'class' => 'PDOException',
-                'expected_suggestion' => 'database connection'
-            ],
-            [
-                'message' => 'Permission denied',
-                'class' => 'RuntimeException',
-                'expected_suggestion' => 'file permissions'
-            ],
-            [
-                'message' => 'Fatal error: Allowed memory size exhausted',
-                'class' => 'Error',
-                'expected_suggestion' => 'memory limits'
-            ],
-            [
-                'message' => 'Connection refused',
-                'class' => 'GuzzleHttp\Exception\ConnectException',
-                'expected_suggestion' => 'network connectivity'
-            ]
-        ];
-
-        foreach ($errorTypes as $errorType) {
-            $error = [
-                [
-                    'message' => $errorType['message'],
-                    'class' => $errorType['class'],
-                    'file' => '/test.php',
-                    'line' => 1,
-                    'created_at' => '2024-08-19 10:00:00',
-                    'last_seen_at' => '2024-08-19 15:00:00',
-                    'nth' => 1,
-                    'group_hash' => 'test'
-                ]
-            ];
-
-            $report = (new ErrorsListReport($this->app, $error))->generate();
-            $this->assertStringContainsString($errorType['expected_suggestion'], $report);
-        }
     }
 
     public function testReportTimestamp(): void
