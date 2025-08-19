@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inspector\MCPServer\Tests;
 
 use Inspector\MCPServer\App;
@@ -103,7 +105,7 @@ class ErrorReportTest extends TestCase
                 'file' => '/app/Services/PaymentService.php',
                 'line' => 45,
                 'created_at' => '2024-08-19 16:45:00',
-                'last_seen_at' => date('Y-m-d H:i:s', time() - 120), // 2 minutes ago
+                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 120), // 2 minutes ago
                 'nth' => 1,
                 'group_hash' => 'recent456'
             ]
@@ -198,12 +200,12 @@ class ErrorReportTest extends TestCase
 
     public function testCriticalErrorsPrioritization(): void
     {
-        $mixedErrors = array_merge($this->sampleErrors, $this->highFrequencyErrors);
+        $mixedErrors = \array_merge($this->sampleErrors, $this->highFrequencyErrors);
         $report = (new ErrorsListReport($this->app, $mixedErrors))->generate();
 
         // High frequency error should be listed first
-        $memoryErrorPos = strpos($report, 'Memory limit exceeded');
-        $openaiErrorPos = strpos($report, 'api.openai.com');
+        $memoryErrorPos = \strpos($report, 'Memory limit exceeded');
+        $openaiErrorPos = \strpos($report, 'api.openai.com');
 
         $this->assertNotFalse($memoryErrorPos);
         $this->assertNotFalse($openaiErrorPos);
@@ -290,8 +292,8 @@ class ErrorReportTest extends TestCase
                 'class' => 'Error',
                 'file' => '/test.php',
                 'line' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'last_seen_at' => date('Y-m-d H:i:s', time() - 60), // 1 minute ago
+                'created_at' => \date('Y-m-d H:i:s'),
+                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 60), // 1 minute ago
                 'nth' => 1,
                 'group_hash' => 'active'
             ]
@@ -349,8 +351,8 @@ class ErrorReportTest extends TestCase
                 'class' => 'RuntimeException',
                 'file' => '/test.php',
                 'line' => $i + 1,
-                'created_at' => date('Y-m-d H:i:s', time() - 3600),
-                'last_seen_at' => date('Y-m-d H:i:s', time() - 60), // Recent
+                'created_at' => \date('Y-m-d H:i:s', \time() - 3600),
+                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 60), // Recent
                 'nth' => 1,
                 'group_hash' => "recent{$i}"
             ];
@@ -476,7 +478,7 @@ class ErrorReportTest extends TestCase
         $report = (new ErrorsListReport($this->app, $this->singleError))->generate();
 
         // Check that the current timestamp is included
-        $currentDate = date('Y-m-d');
+        $currentDate = \date('Y-m-d');
         $this->assertStringContainsString("**Generated:** {$currentDate}", $report);
         $this->assertStringContainsString('**Period:** Last 24 hours', $report);
     }

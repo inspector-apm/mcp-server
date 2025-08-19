@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Inspector\MCPServer;
 
 use GuzzleHttp\Client;
-use Inspector\MCPServer\App;
 
 trait HttpClient
 {
