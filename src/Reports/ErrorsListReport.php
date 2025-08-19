@@ -94,8 +94,8 @@ class ErrorsListReport implements \Stringable
 
         foreach ($criticalErrors as $index => $error) {
             $priority = $index + 1;
-            $frequency = self::getFrequencyLevel($error['nth']);
-            $recency = self::getRecencyIndicator($error['last_seen_at']);
+            $frequency = $this->getFrequencyLevel($error['nth']);
+            $recency = $this->getRecencyIndicator($error['last_seen_at']);
 
             $section .= "### {$priority}. {$frequency} {$recency}\n";
             $section .= "**Error:** `{$error['class']}`\n";
@@ -173,7 +173,7 @@ class ErrorsListReport implements \Stringable
             "*Use the group_hash values to fetch detailed stack traces, bug fix suggestions, and context.*";
     }
 
-    private function getFrequencyLevel(int $occurrences): string
+    private function getFrequencyLevel(string $occurrences): string
     {
         if ($occurrences >= 50) {
             return "CRITICAL";
