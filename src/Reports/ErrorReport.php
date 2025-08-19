@@ -106,7 +106,7 @@ class ErrorReport implements \Stringable
                 "Investigation Priority: Verify object instantiation before method calls\n\n";
         } elseif (\str_contains($message, 'Undefined array key') || \str_contains($message, 'Undefined index')) {
             $analysis .= "Error Pattern: UNDEFINED ARRAY ACCESS\n" .
-                "Issue: Accessing an array key that doesn't exist\n" .
+                "Issue: Accessing an array key that does not exist\n" .
                 "Focus Line: {$line}\n" .
                 "Investigation Priority: Validate array keys before access\n\n";
         }

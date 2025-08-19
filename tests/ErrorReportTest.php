@@ -4,375 +4,437 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer\Tests;
 
-use Inspector\MCPServer\App;
-use Inspector\MCPServer\Reports\ErrorsListReport;
+use Inspector\MCPServer\Reports\ErrorReport;
 use PHPUnit\Framework\TestCase;
 
 class ErrorReportTest extends TestCase
 {
-    private App $app;
-    private array $sampleErrors;
-    private array $emptyErrors;
-    private array $singleError;
-    private array $highFrequencyErrors;
-    private array $recentErrors;
-    private array $apiErrors;
-
-    protected function setUp(): void
+    public function testBasicErrorReportGeneration(): void
     {
-        $this->app = new App('Test app', 'php', 'Laravel');
+        $errorData = [
+            'message' => 'Undefined variable $user',
+            'class' => 'Error',
+            'hash' => 'abc123',
+            'nth' => '1',
+            'file' => '/vendor/framework/core.php',
+            'line' => 42
+        ];
 
-        $this->emptyErrors = [];
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
 
-        $this->singleError = [
-            [
-                'message' => 'Division by zero',
-                'class' => 'DivisionByZeroError',
-                'file' => '/app/Calculator.php',
-                'line' => 45,
-                'created_at' => '2024-08-18 10:00:00',
-                'last_seen_at' => '2024-08-18 15:30:00',
-                'nth' => 3,
-                'group_hash' => 'abc123',
-                'app_file' => [
-                    'file' => '/app/Calculator.php',
-                    'line' => 45,
-                    'code' => "43 | public function divide(\$a, \$b) {\n44 |     // TODO: Add validation\n45 |     return \$a / \$b;\n46 | }\n47 |"
-                ]
+        $this->assertStringContainsString('ERROR SUMMARY', $output);
+        $this->assertStringContainsString('Type: Error', $output);
+        $this->assertStringContainsString('Message: Undefined variable $user', $output);
+        $this->assertStringContainsString('Error Hash: abc123', $output);
+        $this->assertStringContainsString('Occurrence Count: 1 time(s)', $output);
+    }
+
+    public function testStringableImplementation(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'class' => 'Exception'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $stringOutput = (string) $report;
+        $generateOutput = $report->generate();
+
+        $this->assertEquals($generateOutput, $stringOutput);
+    }
+
+    public function testErrorContextWithAppFile(): void
+    {
+        $errorData = [
+            'message' => 'Call to a member function getName() on null',
+            'class' => 'Error',
+            'file' => '/vendor/framework/core.php',
+            'line' => 42,
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 15,
+                'code' => '$name = $user->getName();'
             ]
         ];
 
-        $this->sampleErrors = [
-            [
-                'message' => 'Client error: `POST https://api.openai.com/v1/chat/completions` resulted in a `400 Bad Request` response',
-                'class' => 'GuzzleHttp\Exception\ClientException',
-                'file' => '/vendor/guzzlehttp/guzzle/src/Exception/RequestException.php',
-                'line' => 111,
-                'created_at' => '2024-08-18 08:00:00',
-                'last_seen_at' => '2024-08-19 16:30:00', // Recent
-                'nth' => 25, // High frequency
-                'group_hash' => 'xyz789',
-                'app_file' => [
-                    'file' => '/app/AI/ChatService.php',
-                    'line' => 67,
-                    'code' => "65 | \$response = \$this->client->post('chat/completions', [\n66 |     'json' => \$payload\n67 | ]);\n68 |"
-                ]
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('ERROR CONTEXT', $output);
+        $this->assertStringContainsString('Stack Trace Origin:', $output);
+        $this->assertStringContainsString('File: /vendor/framework/core.php', $output);
+        $this->assertStringContainsString('Line: 42', $output);
+        $this->assertStringContainsString('APPLICATION SOURCE', $output);
+        $this->assertStringContainsString('File: /app/User.php', $output);
+        $this->assertStringContainsString('Line: 15', $output);
+        $this->assertStringContainsString('```php', $output);
+        $this->assertStringContainsString('$name = $user->getName();', $output);
+    }
+
+    public function testCodeAnalysisForNullPropertyAccess(): void
+    {
+        $errorData = [
+            'message' => 'Attempt to read property "name" on null',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 10,
+                'code' => 'echo $user->name;'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('CODE ANALYSIS', $output);
+        $this->assertStringContainsString('Error Pattern: NULL PROPERTY ACCESS', $output);
+        $this->assertStringContainsString('Issue: Attempting to access a property on a null object', $output);
+        $this->assertStringContainsString('Focus Line: 10', $output);
+        $this->assertStringContainsString('Investigation Priority: Check for null values', $output);
+        $this->assertStringContainsString('Problematic Property: name', $output);
+    }
+
+    public function testCodeAnalysisForNullMethodCall(): void
+    {
+        $errorData = [
+            'message' => 'Call to a member function getName() on null',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 20,
+                'code' => '$name = $user->getName();'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Error Pattern: NULL METHOD CALL', $output);
+        $this->assertStringContainsString('Issue: Attempting to call a method on a null object', $output);
+        $this->assertStringContainsString('Focus Line: 20', $output);
+        $this->assertStringContainsString('Verify object instantiation', $output);
+        $this->assertStringContainsString('Problematic Method: getName()', $output);
+    }
+
+    public function testCodeAnalysisForUndefinedArrayKey(): void
+    {
+        $errorData = [
+            'message' => 'Undefined array key "email"',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 30,
+                'code' => 'echo $data["email"];'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Error Pattern: UNDEFINED ARRAY ACCESS', $output);
+        $this->assertStringContainsString('Issue: Accessing an array key that does not exist', $output);
+        $this->assertStringContainsString('Focus Line: 30', $output);
+        $this->assertStringContainsString('Validate array keys before access', $output);
+        $this->assertStringContainsString('Missing Array Key: email', $output);
+    }
+
+    public function testCodeAnalysisForUndefinedIndex(): void
+    {
+        $errorData = [
+            'message' => 'Undefined index: username',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 25,
+                'code' => 'echo $_POST["username"];'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Error Pattern: UNDEFINED ARRAY ACCESS', $output);
+    }
+
+    public function testExistingFixSection(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'fix' => [
+                'platform' => 'Laravel',
+                'language' => 'PHP',
+                'proposal' => 'Add null check before accessing the property: if ($user !== null) { ... }'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('INSPECTOR AI ANALYSIS', $output);
+        $this->assertStringContainsString('Detected Platform: Laravel', $output);
+        $this->assertStringContainsString('Language: PHP', $output);
+        $this->assertStringContainsString('Add null check before accessing', $output);
+        $this->assertStringContainsString('This fix was generated by Inspector\'s AI', $output);
+    }
+
+    public function testActionableInsightsWithRecurringError(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '5',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 42
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('ACTIONABLE INSIGHTS', $output);
+        $this->assertStringContainsString('This is a recurring error (5 occurrences)', $output);
+        $this->assertStringContainsString('Debugging Strategy:', $output);
+        $this->assertStringContainsString('Focus investigation on the APPLICATION SOURCE', $output);
+        $this->assertStringContainsString('Open file: /app/User.php', $output);
+        $this->assertStringContainsString('Navigate to line: 42', $output);
+    }
+
+    public function testSeverityDeterminationCritical(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '15'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Severity: CRITICAL (High frequency)', $output);
+    }
+
+    public function testSeverityDeterminationHigh(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '7'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Severity: HIGH (Multiple occurrences)', $output);
+    }
+
+    public function testSeverityDeterminationCriticalFatal(): void
+    {
+        $errorData = [
+            'message' => 'Fatal error: Out of memory',
+            'nth' => '1'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Severity: CRITICAL (Fatal)', $output);
+    }
+
+    public function testSeverityDeterminationMedium(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '2'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Severity: MEDIUM', $output);
+    }
+
+    public function testErrorPatternAnalysisRapidSuccession(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '10',
+            'created_at' => '2024-01-01 10:00:00',
+            'last_seen_at' => '2024-01-01 10:30:00'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Pattern: Rapid succession', $output);
+    }
+
+    public function testErrorPatternAnalysisIntermittent(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '3',
+            'created_at' => '2024-01-01 10:00:00',
+            'last_seen_at' => '2024-01-03 15:00:00'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Pattern: Intermittent over time', $output);
+    }
+
+    public function testErrorPatternAnalysisRecurring(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '3'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Pattern: Recurring', $output);
+    }
+
+    public function testErrorPatternAnalysisSingleOccurrence(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'nth' => '1'
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Pattern: Single occurrence', $output);
+    }
+
+    public function testMinimalErrorData(): void
+    {
+        $errorData = [];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Type: Unknown', $output);
+        $this->assertStringContainsString('Message: Unknown error', $output);
+        $this->assertStringContainsString('Error Hash: N/A', $output);
+        $this->assertStringContainsString('Occurrence Count: 1 time(s)', $output);
+        $this->assertStringContainsString('Severity: MEDIUM', $output);
+    }
+
+    public function testNoAppFileCodeSection(): void
+    {
+        $errorData = [
+            'message' => 'Test error',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 42
+                // No 'code' key
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringNotContainsString('CODE ANALYSIS', $output);
+        $this->assertStringNotContainsString('```php', $output);
+    }
+
+    public function testNoFixSection(): void
+    {
+        $errorData = [
+            'message' => 'Test error'
+            // No 'fix' key
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringNotContainsString('INSPECTOR AI ANALYSIS', $output);
+    }
+
+    public function testVariableExtractionFromComplexMessages(): void
+    {
+        $errorData = [
+            'message' => 'Attempt to read property "email" on null in UserService',
+            'app_file' => [
+                'file' => '/app/User.php',
+                'line' => 10,
+                'code' => 'echo $user->email;'
+            ]
+        ];
+
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
+
+        $this->assertStringContainsString('Problematic Property: email', $output);
+    }
+
+    public function testCompleteErrorReport(): void
+    {
+        $errorData = [
+            'message' => 'Call to a member function getName() on null',
+            'class' => 'Error',
+            'hash' => 'def456',
+            'nth' => '3',
+            'file' => '/vendor/framework/core.php',
+            'line' => 100,
+            'app_file' => [
+                'file' => '/app/Services/UserService.php',
+                'line' => 25,
+                'code' => 'return $user->getName();'
             ],
-            [
-                'message' => 'Connection timeout',
-                'class' => 'GuzzleHttp\Exception\ConnectException',
-                'file' => '/vendor/guzzlehttp/guzzle/src/Handler/CurlHandler.php',
-                'line' => 234,
-                'created_at' => '2024-08-18 12:00:00',
-                'last_seen_at' => '2024-08-18 14:00:00', // Older
-                'nth' => 5, // Medium frequency
-                'group_hash' => 'def456',
-                'app_file' => [
-                    'file' => '/app/Services/ExternalApiService.php',
-                    'line' => 89,
-                    'code' => "87 | try {\n88 |     \$response = \$this->httpClient->get(\$url);\n89 |     return \$response->getBody();\n90 | } catch (Exception \$e) {\n91 |"
-                ]
+            'fix' => [
+                'platform' => 'Laravel',
+                'language' => 'PHP',
+                'proposal' => 'Check if $user is not null before calling getName() method'
             ],
-            [
-                'message' => 'SQLSTATE[42S02]: Base table or view not found',
-                'class' => 'PDOException',
-                'file' => '/app/Database/Connection.php',
-                'line' => 156,
-                'created_at' => '2024-08-19 09:00:00',
-                'last_seen_at' => '2024-08-19 09:15:00',
-                'nth' => 2, // Low frequency
-                'group_hash' => 'ghi789'
-            ]
+            'created_at' => '2024-01-01 10:00:00',
+            'last_seen_at' => '2024-01-01 12:00:00'
         ];
 
-        $this->highFrequencyErrors = [
-            [
-                'message' => 'Memory limit exceeded',
-                'class' => 'Error',
-                'file' => '/app/DataProcessor.php',
-                'line' => 123,
-                'created_at' => '2024-08-18 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 75, // Critical frequency
-                'group_hash' => 'critical123'
-            ]
-        ];
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
 
-        $this->recentErrors = [
-            [
-                'message' => 'Service unavailable',
-                'class' => 'RuntimeException',
-                'file' => '/app/Services/PaymentService.php',
-                'line' => 45,
-                'created_at' => '2024-08-19 16:45:00',
-                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 120), // 2 minutes ago
-                'nth' => 1,
-                'group_hash' => 'recent456'
-            ]
-        ];
+        // Verify all sections are present
+        $this->assertStringContainsString('ERROR SUMMARY', $output);
+        $this->assertStringContainsString('ERROR CONTEXT', $output);
+        $this->assertStringContainsString('CODE ANALYSIS', $output);
+        $this->assertStringContainsString('INSPECTOR AI ANALYSIS', $output);
+        $this->assertStringContainsString('ACTIONABLE INSIGHTS', $output);
 
-        $this->apiErrors = [
-            [
-                'message' => 'API key invalid',
-                'class' => 'GuzzleHttp\Exception\ClientException',
-                'file' => '/vendor/guzzlehttp/guzzle/src/Exception/RequestException.php',
-                'line' => 111,
-                'created_at' => '2024-08-19 14:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 8,
-                'group_hash' => 'api123'
-            ],
-            [
-                'message' => 'Rate limit exceeded',
-                'class' => 'GuzzleHttp\Exception\ClientException',
-                'file' => '/vendor/guzzlehttp/guzzle/src/Exception/RequestException.php',
-                'line' => 111,
-                'created_at' => '2024-08-19 13:00:00',
-                'last_seen_at' => '2024-08-19 16:00:00',
-                'nth' => 15,
-                'group_hash' => 'api456'
-            ]
-        ];
+        // Verify specific content
+        $this->assertStringContainsString('Type: Error', $output);
+        $this->assertStringContainsString('Occurrence Count: 3 time(s)', $output);
+        $this->assertStringContainsString('Error Pattern: NULL METHOD CALL', $output);
+        $this->assertStringContainsString('Problematic Method: getName()', $output);
+        $this->assertStringContainsString('This is a recurring error (3 occurrences)', $output);
     }
 
-    public function testGenerateReportWithEmptyErrors(): void
+    /**
+     * @dataProvider errorMessageProvider
+     */
+    public function testDifferentErrorMessages(string $message, string $expectedPattern): void
     {
-        $report = (new ErrorsListReport($this->app, $this->emptyErrors))->generate();
-
-        $this->assertStringContainsString('No errors detected in the last 24 hours', $report);
-    }
-
-    public function testGenerateReportWithSingleError(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->singleError))->generate();
-
-        // Check header information
-        $this->assertStringContainsString('Application Errors Report - Last 24 hours', $report);
-        $this->assertStringContainsString('**Total Error Types:** 1', $report);
-        $this->assertStringContainsString('**Total Occurrences:** 3', $report);
-
-        // Check error details
-        $this->assertStringContainsString('DivisionByZeroError', $report);
-        $this->assertStringContainsString('Division by zero', $report);
-        $this->assertStringContainsString('abc123', $report);
-        $this->assertStringContainsString('/app/Calculator.php:45', $report);
-
-        // Check application code is included
-        $this->assertStringContainsString('return $a / $b;', $report);
-    }
-
-    public function testGenerateReportWithMultipleErrors(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->sampleErrors))->generate();
-
-        // Check header statistics
-        $this->assertStringContainsString('**Total Error Types:** 3', $report);
-        $this->assertStringContainsString('**Total Occurrences:** 32', $report); // 25 + 5 + 2
-
-        // Check all error classes are mentioned
-        $this->assertStringContainsString('GuzzleHttp\Exception\ClientException', $report);
-        $this->assertStringContainsString('GuzzleHttp\Exception\ConnectException', $report);
-        $this->assertStringContainsString('PDOException', $report);
-
-        // Check all group hashes are present
-        $this->assertStringContainsString('xyz789', $report);
-        $this->assertStringContainsString('def456', $report);
-        $this->assertStringContainsString('ghi789', $report);
-    }
-
-    public function testExecutiveSummaryWithHighFrequencyErrors(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->highFrequencyErrors))->generate();
-
-        $this->assertStringContainsString('HIGH PRIORITY', $report);
-        $this->assertStringContainsString('1 error type(s) with 10+ occurrences', $report);
-    }
-
-    public function testExecutiveSummaryWithRecentErrors(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->recentErrors))->generate();
-
-        $this->assertStringContainsString('ACTIVE', $report);
-        $this->assertStringContainsString('1 error type(s) occurred in the last hour', $report);
-    }
-
-    public function testCriticalErrorsPrioritization(): void
-    {
-        $mixedErrors = \array_merge($this->sampleErrors, $this->highFrequencyErrors);
-        $report = (new ErrorsListReport($this->app, $mixedErrors))->generate();
-
-        // High frequency error should be listed first
-        $memoryErrorPos = \strpos($report, 'Memory limit exceeded');
-        $openaiErrorPos = \strpos($report, 'api.openai.com');
-
-        $this->assertNotFalse($memoryErrorPos);
-        $this->assertNotFalse($openaiErrorPos);
-        $this->assertLessThan($openaiErrorPos, $memoryErrorPos);
-    }
-
-    public function testFrequencyLevelClassification(): void
-    {
-        // Test critical frequency (50+)
-        $criticalError = [
-            [
-                'message' => 'Test critical error',
-                'class' => 'Error',
-                'file' => '/test.php',
+        $errorData = [
+            'message' => $message,
+            'app_file' => [
+                'file' => '/app/Test.php',
                 'line' => 1,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 75,
-                'group_hash' => 'critical'
+                'code' => 'test code'
             ]
         ];
 
-        $report = (new ErrorsListReport($this->app, $criticalError))->generate();
-        $this->assertStringContainsString('CRITICAL', $report);
+        $report = new ErrorReport($errorData);
+        $output = $report->generate();
 
-        // Test high frequency (10-49)
-        $highError = [
-            [
-                'message' => 'Test high error',
-                'class' => 'Error',
-                'file' => '/test.php',
-                'line' => 1,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 25,
-                'group_hash' => 'high'
-            ]
+        $this->assertStringContainsString($expectedPattern, $output);
+    }
+
+    public function errorMessageProvider(): array
+    {
+        return [
+            ['Attempt to read property "name" on null', 'Error Pattern: NULL PROPERTY ACCESS'],
+            ['Call to a member function save() on null', 'Error Pattern: NULL METHOD CALL'],
+            ['Undefined array key "id"', 'Error Pattern: UNDEFINED ARRAY ACCESS'],
+            ['Undefined index: username', 'Error Pattern: UNDEFINED ARRAY ACCESS'],
+            ['Some other error message', 'CODE ANALYSIS'], // Should still show the analysis section
         ];
-
-        $report = (new ErrorsListReport($this->app, $highError))->generate();
-        $this->assertStringContainsString('HIGH', $report);
-
-        // Test medium frequency (5-9)
-        $mediumError = [
-            [
-                'message' => 'Test medium error',
-                'class' => 'Error',
-                'file' => '/test.php',
-                'line' => 1,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 7,
-                'group_hash' => 'medium'
-            ]
-        ];
-
-        $report = (new ErrorsListReport($this->app, $mediumError))->generate();
-        $this->assertStringContainsString('MEDIUM', $report);
-
-        // Test low frequency (<5)
-        $lowError = [
-            [
-                'message' => 'Test low error',
-                'class' => 'Error',
-                'file' => '/test.php',
-                'line' => 1,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 2,
-                'group_hash' => 'low'
-            ]
-        ];
-
-        $report = (new ErrorsListReport($this->app, $lowError))->generate();
-        $this->assertStringContainsString('LOW', $report);
-    }
-
-    public function testRecencyIndicators(): void
-    {
-        // Test active error (< 5 minutes)
-        $activeError = [
-            [
-                'message' => 'Active error',
-                'class' => 'Error',
-                'file' => '/test.php',
-                'line' => 1,
-                'created_at' => \date('Y-m-d H:i:s'),
-                'last_seen_at' => \date('Y-m-d H:i:s', \time() - 60), // 1 minute ago
-                'nth' => 1,
-                'group_hash' => 'active'
-            ]
-        ];
-
-        $report = (new ErrorsListReport($this->app, $activeError))->generate();
-        $this->assertStringContainsString('ACTIVE', $report);
-    }
-
-    public function testErrorBreakdownGrouping(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->sampleErrors))->generate();
-
-        // Check that errors are grouped by class
-        $this->assertStringContainsString('### `GuzzleHttp\Exception\ClientException`', $report);
-        $this->assertStringContainsString('### `GuzzleHttp\Exception\ConnectException`', $report);
-        $this->assertStringContainsString('### `PDOException`', $report);
-
-        // Check that occurrences are summed correctly for ClientException
-        $this->assertStringContainsString('(25 total occurrences)', $report);
-    }
-
-    public function testReportStructure(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->sampleErrors))->generate();
-
-        // Check all main sections are present
-        $this->assertStringContainsString('# Application Errors Report - Last 24 hours', $report);
-        $this->assertStringContainsString('## Executive Summary', $report);
-        $this->assertStringContainsString('## Critical Errors', $report);
-        $this->assertStringContainsString('## Complete Error Breakdown', $report);
-        $this->assertStringContainsString('## AI Analysis & Recommendations', $report);
-        $this->assertStringContainsString('### General Debugging Strategy', $report);
-
-        // Check footer is present
-        $this->assertStringContainsString('Inspector MCP Server', $report);
-        $this->assertStringContainsString('group_hash values', $report);
-    }
-
-    public function testCodeSnippetInclusion(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->singleError))->generate();
-
-        // Check that application code is properly formatted
-        $this->assertStringContainsString('```php', $report);
-        $this->assertStringContainsString('// File: /app/Calculator.php:45', $report);
-        $this->assertStringContainsString('return $a / $b;', $report);
-        $this->assertStringContainsString('```', $report);
-    }
-
-    public function testErrorWithoutAppFile(): void
-    {
-        $errorWithoutAppFile = [
-            [
-                'message' => 'Error without app file',
-                'class' => 'Error',
-                'file' => '/vendor/package/file.php',
-                'line' => 123,
-                'created_at' => '2024-08-19 10:00:00',
-                'last_seen_at' => '2024-08-19 15:00:00',
-                'nth' => 1,
-                'group_hash' => 'noapp'
-            ]
-        ];
-
-        $report = (new ErrorsListReport($this->app, $errorWithoutAppFile))->generate();
-
-        // Should still generate a valid report
-        $this->assertStringContainsString('Error without app file', $report);
-        $this->assertStringContainsString('noapp', $report);
-
-        // Should not contain an application source section
-        $this->assertStringNotContainsString('**Application Source:**', $report);
-    }
-
-    public function testReportTimestamp(): void
-    {
-        $report = (new ErrorsListReport($this->app, $this->singleError))->generate();
-
-        // Check that the current timestamp is included
-        $currentDate = \date('Y-m-d');
-        $this->assertStringContainsString("**Generated:** {$currentDate}", $report);
     }
 }
