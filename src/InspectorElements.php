@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer;
 
-use GuzzleHttp\Exception\GuzzleException;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 
