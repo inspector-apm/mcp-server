@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Inspector\MCPServer;
+namespace Inspector\MCPServer\Tools;
 
+use Inspector\MCPServer\HttpClient;
 use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 
-class InspectorElements
+class ErrorTools
 {
     use HttpClient;
 
@@ -79,16 +80,4 @@ class InspectorElements
 
         return (string) new ErrorReport($error);
     }
-
-    /*#[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of WORST performing transactions.')]
-    public function worstTransactions(): string
-    {
-        $this->setApp();
-    }*/
-
-    /*#[McpTool(name: 'transaction_timeline', description: 'Retrieve the timeline of a transaction.')]
-    public function timeline(string $hash): string
-    {
-        $this->setApp();
-    }*/
 }

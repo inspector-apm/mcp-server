@@ -21,7 +21,7 @@ try {
     // Discover MCP elements via attributes
     $server->discover(
         basePath: __DIR__,
-        scanDirs: ['src']
+        scanDirs: ['src/Tools']
     );
 
     // Start listening via stdio transport
