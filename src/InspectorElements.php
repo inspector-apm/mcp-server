@@ -29,7 +29,7 @@ class InspectorElements
      * @throws \Exception
      */
     #[McpTool(name: 'get_production_errors', description: "Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors that occurred in the last 24 hours, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.")]
-    public function listErrors(): string
+    public function listErrorsReport(): string
     {
         $this->setApp();
 
@@ -69,7 +69,7 @@ class InspectorElements
      * @throws \Exception
      */
     #[McpTool(name: 'get_error_analysis', description: 'Get detailed error analysis from the production environment including the actual application source file (not just library stack traces), error patterns, code context, occurrence frequency, and structured debugging guidance to help you fix the issue quickly.')]
-    public function error(string $group_hash): string
+    public function singleErrorReport(string $group_hash): string
     {
         $this->setApp();
 
