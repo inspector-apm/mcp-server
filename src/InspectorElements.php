@@ -68,7 +68,7 @@ class InspectorElements
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'error_details', description: 'Get the error details like file, line, message, stacktrace, etc.')]
+    #[McpTool(name: 'get_error_analysis', description: 'Get detailed error analysis from the production environment including the actual application source file (not just library stack traces), error patterns, code context, occurrence frequency, and structured debugging guidance to help you fix the issue quickly.')]
     public function error(string $group_hash): string
     {
         $this->setApp();
