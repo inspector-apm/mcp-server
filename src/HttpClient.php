@@ -27,7 +27,7 @@ trait HttpClient
     /**
      * @throws \Exception
      */
-    protected function validateAppId(): int
+    protected function validateAppId(): string
     {
         if (!$id = \getenv('INSPECTOR_APP_ID')) {
             throw new \Exception('Inspector application ID not found');
@@ -63,7 +63,7 @@ trait HttpClient
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    protected function setApp(): void
+    protected function setApp(): App
     {
         $response = $this->httpClient()->get('')->getBody()->getContents();
 
@@ -74,5 +74,7 @@ trait HttpClient
             $app['platform']['language'],
             $app['platform']['name'],
         );
+
+        return $this->app;
     }
 }
