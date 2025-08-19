@@ -63,18 +63,30 @@ class InspectorElements
         return (string) new ErrorsListReport($this->app, \array_values($errors));
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
+     */
     #[McpTool(name: 'error_details', description: 'Get the error details like file, line, message, stacktrace, etc.')]
     public function error(string $hash): string
     {
         $this->setApp();
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
+     */
     #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of WORST performing transactions.')]
     public function worstTransactions(): string
     {
         $this->setApp();
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
+     */
     #[McpTool(name: 'transaction_timeline', description: 'Retrieve the timeline of a transaction.')]
     public function timeline(string $hash): string
     {
