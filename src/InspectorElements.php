@@ -53,9 +53,9 @@ class InspectorElements
         // Merge error details with error groups
         foreach ($errors as $hash => $error) {
             $errors[$hash] = \array_merge($error, [
-                'created_at' => $errorGroups[$hash]['created_at'],
-                'last_seen_at' => $errorGroups[$hash]['last_seen_at'],
-                'nth' => $errorGroups[$hash]['nth'],
+                'created_at' => $errorGroups[$hash]['created_at']??'',
+                'last_seen_at' => $errorGroups[$hash]['last_seen_at']??'',
+                'nth' => $errorGroups[$hash]['nth']??'',
                 'app_file' => $this->getAppFileFromStack($error['stack'] ?? [])
             ]);
         }

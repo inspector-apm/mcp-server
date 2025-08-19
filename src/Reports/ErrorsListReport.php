@@ -23,7 +23,7 @@ class ErrorsListReport implements \Stringable
     public function generate(): string
     {
         if ($this->errors === []) {
-            return "# Application Errors Report\n\n✅ **No errors detected in the last 24 hours**\n\nThe application is currently running without any reported errors.";
+            return "# Application Errors Report\n\n**No errors detected in the last 24 hours**\n\nThe application is currently running without any reported errors.";
         }
 
         $report = $this->buildHeader($this->errors);
