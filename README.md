@@ -34,7 +34,7 @@ The configuration below is for the MCP client like coding agents (Claude Code, G
 }
 ```
 
-You can get your application MCP configuration in the Application Settings section in your [Inspector dashboard](https://app.inspector.dev).
+You can get the application MCP configuration in the *Application Settings* section in your [Inspector dashboard](https://app.inspector.dev).
 
 ## What It Does
 
