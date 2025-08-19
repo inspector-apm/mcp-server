@@ -7,19 +7,15 @@ namespace Inspector\MCPServer\Reports;
 use DateInterval;
 use DateTime;
 
-/**
- * ErrorReport - Generates comprehensive error reports for AI-assisted debugging
- *
- * This class transforms Inspector error data into structured reports optimized
- * for LLM analysis and developer assistance in PHP applications.
- */
-class ErrorReport
+class ErrorReport implements \Stringable
 {
-    private array $error;
-
-    public function __construct(array $error)
+    public function __construct(protected array $error)
     {
-        $this->error = $error;
+    }
+
+    public function __toString(): string
+    {
+        return $this->generate();
     }
 
     /**
@@ -53,6 +49,7 @@ class ErrorReport
             "Message: {$message}\n" .
             "Error Hash: {$hash}\n" .
             "Occurrence Count: {$occurrences} time(s)\n" .
+            "Pattern: " . $this->analyzeErrorPattern() . "\n" .
             "Severity: " . $this->determineSeverity();
     }
 
@@ -228,16 +225,5 @@ class ErrorReport
         }
 
         return $occurrences > 1 ? 'Recurring' : 'Single occurrence';
-    }
-
-    private function formatDuration(DateInterval $duration): string
-    {
-        if ($duration->d > 0) {
-            return "{$duration->d} day(s), {$duration->h} hour(s)";
-        } elseif ($duration->h > 0) {
-            return "{$duration->h} hour(s), {$duration->i} minute(s)";
-        } else {
-            return "{$duration->i} minute(s), {$duration->s} second(s)";
-        }
     }
 }
