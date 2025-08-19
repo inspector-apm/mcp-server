@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer;
 
+use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 
@@ -68,9 +69,15 @@ class InspectorElements
      * @throws \Exception
      */
     #[McpTool(name: 'error_details', description: 'Get the error details like file, line, message, stacktrace, etc.')]
-    public function error(string $hash): string
+    public function error(string $group_hash): string
     {
         $this->setApp();
+
+        $error = $this->httpClient()->get("error-groups/{$group_hash}")->getBody()->getContents();
+        $error = \json_decode($error, true);
+        $error['app_file'] = $this->getAppFileFromStack($error['stack'] ?? []);
+
+        return (string) new ErrorReport($error);
     }
 
     /**

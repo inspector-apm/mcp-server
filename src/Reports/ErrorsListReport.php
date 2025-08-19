@@ -109,7 +109,7 @@ class ErrorsListReport implements \Stringable
                 $section .= "**Application Source:**\n";
                 $section .= "```php\n";
                 $section .= "// File: {$error['app_file']['file']}:{$error['app_file']['line']}\n";
-                $section .= \trim($error['app_file']['code']) . "\n";
+                $section .= $error['app_file']['code']??'' . "\n";
                 $section .= "```\n\n";
             }
         }
