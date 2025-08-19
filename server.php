@@ -25,6 +25,6 @@ try {
     $server->listen($transport);
 
 } catch (\Throwable $e) {
-    fwrite(STDERR, "[CRITICAL ERROR] " . $e->getMessage() . "\n");
+    \fwrite(\STDERR, "[CRITICAL ERROR] " . $e->getMessage() . "\n");
     exit(1);
 }
