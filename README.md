@@ -12,7 +12,7 @@ access to production error data and intelligent analysis.
 ## Install
 
 ```
-composer require inspector-apm/mcp-server
+composer require inspector-apm/mcp-server --dev
 ```
 
 ## Client Configuration
