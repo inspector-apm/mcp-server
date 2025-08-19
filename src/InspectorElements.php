@@ -84,19 +84,19 @@ class InspectorElements
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of WORST performing transactions.')]
+    /*#[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of WORST performing transactions.')]
     public function worstTransactions(): string
     {
         $this->setApp();
-    }
+    }*/
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'transaction_timeline', description: 'Retrieve the timeline of a transaction.')]
+    /*#[McpTool(name: 'transaction_timeline', description: 'Retrieve the timeline of a transaction.')]
     public function timeline(string $hash): string
     {
         $this->setApp();
-    }
+    }*/
 }
