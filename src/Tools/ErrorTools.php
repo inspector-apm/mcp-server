@@ -69,7 +69,7 @@ class ErrorTools
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'get_error_analysis')]
+    #[McpTool(name: 'get_error_analysis', description: 'Get detailed error analysis from the production environment including the actual application source file (not just library stack traces), error patterns, code context, occurrence frequency, and structured debugging guidance to help you fix the issue quickly.')]
     public function singleErrorReport(string $group_hash): string
     {
         $this->setApp();
