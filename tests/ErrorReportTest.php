@@ -141,7 +141,7 @@ class ErrorReportTest extends TestCase
 
         $this->assertStringContainsString('No errors detected in the last 24 hours', $report);
         $this->assertStringContainsString('✅', $report);
-        $this->assertStringContainsString('Inspector Error Report', $report);
+        $this->assertStringContainsString('Application Errors Report - Last 24 hours', $report);
     }
 
     public function testGenerateReportWithSingleError(): void
@@ -149,7 +149,7 @@ class ErrorReportTest extends TestCase
         $report = (new ErrorsListReport($this->app, $this->singleError))->generate();
 
         // Check header information
-        $this->assertStringContainsString('Inspector Error Report', $report);
+        $this->assertStringContainsString('Application Errors Report - Last 24 hours', $report);
         $this->assertStringContainsString('**Total Error Types:** 1', $report);
         $this->assertStringContainsString('**Total Occurrences:** 3', $report);
 
@@ -381,7 +381,7 @@ class ErrorReportTest extends TestCase
         $report = (new ErrorsListReport($this->app, $this->sampleErrors))->generate();
 
         // Check all main sections are present
-        $this->assertStringContainsString('# Inspector Error Report', $report);
+        $this->assertStringContainsString('# Application Errors Report - Last 24 hours', $report);
         $this->assertStringContainsString('## 📊 Executive Summary', $report);
         $this->assertStringContainsString('## 🚨 Critical Errors', $report);
         $this->assertStringContainsString('## 📋 Complete Error Breakdown', $report);
@@ -480,6 +480,5 @@ class ErrorReportTest extends TestCase
         // Check that the current timestamp is included
         $currentDate = \date('Y-m-d');
         $this->assertStringContainsString("**Generated:** {$currentDate}", $report);
-        $this->assertStringContainsString('**Period:** Last 24 hours', $report);
     }
 }
