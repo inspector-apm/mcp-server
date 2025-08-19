@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer\Reports;
 
-use DateInterval;
 use DateTime;
 
 class ErrorReport implements \Stringable
@@ -33,7 +32,7 @@ class ErrorReport implements \Stringable
             $this->generateActionableInsights()
         ];
 
-        return implode("\n\n", array_filter($sections));
+        return \implode("\n\n", \array_filter($sections));
     }
 
     private function generateErrorSummary(): string
@@ -95,17 +94,17 @@ class ErrorReport implements \Stringable
         $line = $this->error['app_file']['line'] ?? 0;
 
         // Analyze common error patterns
-        if (str_contains($message, 'Attempt to read property')) {
+        if (\str_contains($message, 'Attempt to read property')) {
             $analysis .= "Error Pattern: NULL PROPERTY ACCESS\n" .
                 "Issue: Attempting to access a property on a null object\n" .
                 "Focus Line: {$line}\n" .
                 "Investigation Priority: Check for null values before property access\n\n";
-        } elseif (str_contains($message, 'Call to a member function')) {
+        } elseif (\str_contains($message, 'Call to a member function')) {
             $analysis .= "Error Pattern: NULL METHOD CALL\n" .
                 "Issue: Attempting to call a method on a null object\n" .
                 "Focus Line: {$line}\n" .
                 "Investigation Priority: Verify object instantiation before method calls\n\n";
-        } elseif (str_contains($message, 'Undefined array key') || str_contains($message, 'Undefined index')) {
+        } elseif (\str_contains($message, 'Undefined array key') || \str_contains($message, 'Undefined index')) {
             $analysis .= "Error Pattern: UNDEFINED ARRAY ACCESS\n" .
                 "Issue: Accessing an array key that doesn't exist\n" .
                 "Focus Line: {$line}\n" .
@@ -175,17 +174,17 @@ class ErrorReport implements \Stringable
         $context = '';
 
         // Extract property names from error messages
-        if (preg_match('/property "([^"]+)"/', $message, $matches)) {
+        if (\preg_match('/property "([^"]+)"/', $message, $matches)) {
             $context .= "Problematic Property: {$matches[1]}\n";
         }
 
         // Extract method names from error messages
-        if (preg_match('/member function ([^\s]+)/', $message, $matches)) {
+        if (\preg_match('/member function ([^\s]+)/', $message, $matches)) {
             $context .= "Problematic Method: {$matches[1]}\n";
         }
 
         // Extract array keys from error messages
-        if (preg_match('/array key "([^"]+)"/', $message, $matches)) {
+        if (\preg_match('/array key "([^"]+)"/', $message, $matches)) {
             $context .= "Missing Array Key: {$matches[1]}\n";
         }
 
@@ -201,7 +200,7 @@ class ErrorReport implements \Stringable
             return 'CRITICAL (High frequency)';
         } elseif ($occurrences >= 5) {
             return 'HIGH (Multiple occurrences)';
-        } elseif (str_contains($message, 'Fatal error')) {
+        } elseif (\str_contains($message, 'Fatal error')) {
             return 'CRITICAL (Fatal)';
         } else {
             return 'MEDIUM';
