@@ -34,9 +34,7 @@ The configuration below is for the MCP client like coding agents (Claude Code, G
 }
 ```
 
-You can get your application MCP configuration from App Settings in your [Inspector dashboard](https://app.inspector.dev).
-
-Follow this link to create a new API key: [Inspector API KEY](https://app.inspector.dev/account/api).
+You can get your application MCP configuration in the Application Settings section in your [Inspector dashboard](https://app.inspector.dev).
 
 ## What It Does
 
