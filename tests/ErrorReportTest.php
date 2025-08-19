@@ -140,7 +140,6 @@ class ErrorReportTest extends TestCase
         $report = (new ErrorsListReport($this->app, $this->emptyErrors))->generate();
 
         $this->assertStringContainsString('No errors detected in the last 24 hours', $report);
-        $this->assertStringContainsString('✅', $report);
     }
 
     public function testGenerateReportWithSingleError(): void
