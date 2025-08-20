@@ -1,15 +1,12 @@
 # Inspector MCP Server
 
-AI-powered debugging and monitoring integration for PHP applications through the Model Context Protocol.
-
-## Overview
-
-The Inspector MCP Server bridges the gap between AI coding assistants and production application monitoring,
-enabling developers to leverage AI for faster debugging and improved application reliability. Built specifically
-for the PHP ecosystem, this server integrates seamlessly with Inspector.dev to provide AI agents with real-time
-access to production error data and intelligent analysis.
+Inspector MCP Server was built specifically for the PHP ecosystem; this server provides tools to allow
+AI coding agents to access production errors data with comprehensive context, to automatically fix issues,
+and to provide actionable recommendations for root cause analysis and resolution strategies.
 
 ## Install
+
+You can install the MCP server as a dev-dependency in your project:
 
 ```
 composer require inspector-apm/mcp-server --dev
@@ -17,7 +14,7 @@ composer require inspector-apm/mcp-server --dev
 
 ## Client Configuration
 
-The configuration below is for the MCP client like coding agents (Claude Code, Gemini Code Assist, ), or agentic IDEs like Jetbrains, Windsurf, Cursor, etc.
+The configuration below is for the MCP client like coding agents (Claude Code, Gemini Code Assist, etc), or agentic IDEs like Jetbrains, Windsurf, Cursor, etc.
 
 ```json
 {
