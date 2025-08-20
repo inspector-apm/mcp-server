@@ -6,6 +6,7 @@ namespace Inspector\MCPServer\Tools;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Inspector\MCPServer\HttpClient;
+use Inspector\MCPServer\Reports\WorstTransactionsReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
 
@@ -17,7 +18,7 @@ class TransactionTools
      * @throws GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default).')]
+    #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default). A transaction represents an execution cycle of the application. It could be an HTTP request, a background job, or a console command.')]
     public function worstTransactions(
         #[Schema(description: 'The number of hours to look back for transactions (24 by default).')]
         int $hours = 24,
@@ -28,14 +29,16 @@ class TransactionTools
 
         $result = $this->httpClient()->get("worst-transactions?filter[start]={$start}")->getBody()->getContents();
         $result = \json_decode($result, true);
+
+        return (string) new WorstTransactionsReport($result);
     }
 
     /**
      * @throws GuzzleException
      */
-    #[McpTool(name: 'transaction_details', description: 'Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and end times of each task, as well as the duration of each task (database queries, cache commands, call to external http services, and so on).')]
+    /*#[McpTool(name: 'transaction_details', description: 'Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and duration of each task (database queries, cache commands, call to external http services, and so on).')]
     public function transactionDetails(string $hash): string
     {
         $this->setApp();
-    }
+    }*/
 }
