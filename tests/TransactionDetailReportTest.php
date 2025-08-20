@@ -162,7 +162,7 @@ class TransactionDetailReportTest extends TestCase
     public function testNoExceptionsHandling(): void
     {
         $transaction = $this->getSampleTransaction();
-        $tasks = array_filter($this->getSampleTasks(), fn($task) => $task['type'] !== 'exception');
+        $tasks = \array_filter($this->getSampleTasks(), fn ($task) => $task['type'] !== 'exception');
 
         $report = new TransactionDetailReport($transaction, $tasks);
         $result = $report->generate();
@@ -385,7 +385,7 @@ class TransactionDetailReportTest extends TestCase
             [
                 "timestamp" => "2025-08-20 10:37:05",
                 "type" => "mysql",
-                "label" => str_repeat("very long query with lots of text ", 10),
+                "label" => \str_repeat("very long query with lots of text ", 10),
                 "duration" => 150.0,
                 "start" => 10.0
             ]
