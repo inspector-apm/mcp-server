@@ -21,7 +21,9 @@ The configuration below is for the MCP client like coding agents (Claude Code, G
     "mcpServers": {
         "inspector": {
             "command": "php",
-            "args": ["absolute-path-to-your-app-vendor-folder/inspector-apm/mcp-server/server.php"],
+            "args": [
+                "absolute-path-to-your-app-vendor-folder/inspector-apm/mcp-server/server.php"
+            ],
             "env": {
                 "INSPECTOR_API_KEY": "xxxx", // Inspector API key (https://app.inspector.dev/account/api)
                 "INSPECTOR_APP_ID": "xxxx" // The App ID on the Inspector dashboard
