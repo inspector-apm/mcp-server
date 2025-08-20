@@ -4,17 +4,38 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer\Tools;
 
+use GuzzleHttp\Exception\GuzzleException;
+use Inspector\MCPServer\HttpClient;
+use PhpMcp\Server\Attributes\McpTool;
+use PhpMcp\Server\Attributes\Schema;
+
 class TransactionTools
 {
-    /*#[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of WORST performing transactions.')]
-    public function worstTransactions(): string
-    {
-        $this->setApp();
-    }*/
+    use HttpClient;
 
-    /*#[McpTool(name: 'transaction_timeline', description: 'Retrieve the timeline of a transaction.')]
-    public function timeline(string $hash): string
+    /**
+     * @throws GuzzleException
+     * @throws \Exception
+     */
+    #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default).')]
+    public function worstTransactions(
+        #[Schema(description: 'The number of hours to look back for transactions (24 by default).')]
+        int $hours = 24,
+    ): string {
+        $this->setApp();
+
+        $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
+
+        $result = $this->httpClient()->get("worst-transactions?filter[start]={$start}")->getBody()->getContents();
+        $result = \json_decode($result, true);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    #[McpTool(name: 'transaction_details', description: 'Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and end times of each task, as well as the duration of each task (database queries, cache commands, call to external http services, and so on).')]
+    public function transactionDetails(string $hash): string
     {
         $this->setApp();
-    }*/
+    }
 }

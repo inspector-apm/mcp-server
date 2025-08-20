@@ -6,15 +6,10 @@ namespace Inspector\MCPServer\Reports;
 
 use DateTime;
 
-class ErrorReport implements \Stringable
+class ErrorReport extends AbstractReport
 {
     public function __construct(protected array $error)
     {
-    }
-
-    public function __toString(): string
-    {
-        return $this->generate();
     }
 
     /**

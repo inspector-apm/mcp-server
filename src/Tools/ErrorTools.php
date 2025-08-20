@@ -8,6 +8,7 @@ use Inspector\MCPServer\HttpClient;
 use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
+use PhpMcp\Server\Attributes\Schema;
 
 class ErrorTools
 {
@@ -29,12 +30,16 @@ class ErrorTools
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
-    #[McpTool(name: 'get_production_errors', description: "Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors that occurred in the last 24 hours, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.")]
-    public function listErrorsReport(): string
-    {
+    #[McpTool(name: 'get_production_errors', description: "Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.")]
+    public function listErrorsReport(
+        #[Schema(description: 'The number of hours to look back for errors (24 by default).')]
+        int $hours = 24
+    ): string {
         $this->setApp();
 
-        $errors = $this->httpClient()->get("errors")->getBody()->getContents();
+        $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
+
+        $errors = $this->httpClient()->get("errors?start={$start}")->getBody()->getContents();
         // Index errors with hash as the key
         $errors = \array_reduce(
             \json_decode($errors, true),

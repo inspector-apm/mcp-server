@@ -6,15 +6,10 @@ namespace Inspector\MCPServer\Reports;
 
 use Inspector\MCPServer\App;
 
-class ErrorsListReport implements \Stringable
+class ErrorsListReport extends AbstractReport
 {
     public function __construct(protected App $app, protected array $errors)
     {
-    }
-
-    public function __toString(): string
-    {
-        return $this->generate();
     }
 
     /**
