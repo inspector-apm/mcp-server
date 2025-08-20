@@ -11,7 +11,7 @@ class WorstTransactionsReportTest extends TestCase
 {
     private function createSampleTransaction(array $overrides = []): array
     {
-        return array_merge([
+        return \array_merge([
             'hash' => 'abc123def456',
             'name' => 'App\Http\Controllers\UserController@index',
             'type' => 'request',
@@ -50,7 +50,7 @@ class WorstTransactionsReportTest extends TestCase
         $this->assertStringContainsString('# Inspector - Worst Transactions Report', $result);
         $this->assertStringContainsString('**Total Transactions Analyzed:** 1', $result);
         $this->assertStringContainsString('**Generated:**', $result);
-        $this->assertStringContainsString(date('Y-m-d'), $result);
+        $this->assertStringContainsString(\date('Y-m-d'), $result);
     }
 
     public function testCriticalTransactionWithFailedResult(): void
@@ -332,10 +332,10 @@ class WorstTransactionsReportTest extends TestCase
         $result = $report->generate();
 
         // Check that critical issues appear first
-        $criticalPos = strpos($result, '## CRITICAL ISSUES');
-        $performancePos = strpos($result, '## PERFORMANCE ISSUES');
-        $memoryPos = strpos($result, '## MEMORY ISSUES');
-        $otherPos = strpos($result, '## OTHER TRANSACTIONS');
+        $criticalPos = \strpos($result, '## CRITICAL ISSUES');
+        $performancePos = \strpos($result, '## PERFORMANCE ISSUES');
+        $memoryPos = \strpos($result, '## MEMORY ISSUES');
+        $otherPos = \strpos($result, '## OTHER TRANSACTIONS');
 
         $this->assertLessThan($performancePos, $criticalPos);
         $this->assertLessThan($memoryPos, $performancePos);

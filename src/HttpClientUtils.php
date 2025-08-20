@@ -6,11 +6,23 @@ namespace Inspector\MCPServer;
 
 use GuzzleHttp\Client;
 
-trait HttpClient
+trait HttpClientUtils
 {
     protected Client $client;
 
     protected App $app;
+
+    protected function getAppFileFromStack(array $stacktrace): ?array
+    {
+        foreach ($stacktrace as $frame) {
+            if ($frame['in_app']) {
+                $frame['code'] = \array_reduce($frame['code'], fn ($carry, $item) => $carry.\PHP_EOL.$item['line'].' | '.$item['code'], '');
+                return $frame;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * @throws \Exception

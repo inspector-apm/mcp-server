@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer\Tools;
 
-use Inspector\MCPServer\HttpClient;
+use Inspector\MCPServer\HttpClientUtils;
 use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
@@ -12,19 +12,7 @@ use PhpMcp\Server\Attributes\Schema;
 
 class ErrorTools
 {
-    use HttpClient;
-
-    protected function getAppFileFromStack(array $stacktrace): ?array
-    {
-        foreach ($stacktrace as $frame) {
-            if ($frame['in_app']) {
-                $frame['code'] = \array_reduce($frame['code'], fn ($carry, $item) => $carry.\PHP_EOL.$item['line'].' | '.$item['code'], '');
-                return $frame;
-            }
-        }
-
-        return null;
-    }
+    use HttpClientUtils;
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException

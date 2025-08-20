@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Inspector\MCPServer\Tools;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Inspector\MCPServer\HttpClient;
+use Inspector\MCPServer\HttpClientUtils;
 use Inspector\MCPServer\Reports\WorstTransactionsReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
 
 class TransactionTools
 {
-    use HttpClient;
+    use HttpClientUtils;
 
     /**
      * @throws GuzzleException
@@ -42,10 +42,19 @@ class TransactionTools
     {
         $this->setApp();
 
-        $occurrence = $this->httpClient()->get("transactions/{$hash}/occurrence")->getBody()->getContents();
-        $occurrence = \json_decode($occurrence, true);
+        $transaction = $this->httpClient()->get("transactions/{$hash}/occurrence")->getBody()->getContents();
+        $transaction = \json_decode($transaction, true);
 
         $timeline = $this->httpClient()->get("transactions/{$hash}/segments")->getBody()->getContents();
         $timeline = \json_decode($timeline, true);
+        $timeline = \array_map(function (array $segment): array {
+            if ($segment['type'] === 'exception') {
+                $segment['app_file'] = $this->getAppFileFromStack($segment['context']['Error']['stack'] ?? []);
+            }
+
+            return $segment;
+        }, $timeline);
+
+
     }
 }
