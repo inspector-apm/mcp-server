@@ -6,6 +6,7 @@ namespace Inspector\MCPServer\Tools;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Inspector\MCPServer\HttpClientUtils;
+use Inspector\MCPServer\Reports\TransactionDetailReport;
 use Inspector\MCPServer\Reports\WorstTransactionsReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
@@ -55,6 +56,6 @@ class TransactionTools
             return $segment;
         }, $timeline);
 
-
+        return (string) new TransactionDetailReport($transaction, $timeline);
     }
 }

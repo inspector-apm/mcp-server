@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Inspector\MCPServer\Reports;
 
-class TransactionDetailReport
+class TransactionDetailReport extends AbstractReport
 {
     public function __construct(protected array $transaction, protected array $tasks)
     {
