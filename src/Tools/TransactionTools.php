@@ -35,10 +35,17 @@ class TransactionTools
 
     /**
      * @throws GuzzleException
+     * @throws \Exception
      */
-    /*#[McpTool(name: 'transaction_details', description: 'Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and duration of each task (database queries, cache commands, call to external http services, and so on).')]
+    #[McpTool(name: 'transaction_details', description: 'Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and duration of each task (database queries, cache commands, call to external http services, and so on).')]
     public function transactionDetails(string $hash): string
     {
         $this->setApp();
-    }*/
+
+        $occurrence = $this->httpClient()->get("transactions/{$hash}/occurrence")->getBody()->getContents();
+        $occurrence = \json_decode($occurrence, true);
+
+        $timeline = $this->httpClient()->get("transactions/{$hash}/segments")->getBody()->getContents();
+        $timeline = \json_decode($timeline, true);
+    }
 }
