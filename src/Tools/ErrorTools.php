@@ -21,7 +21,9 @@ class ErrorTools
     #[McpTool(name: 'get_production_errors', description: "Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.")]
     public function listErrorsReport(
         #[Schema(description: 'The number of hours to look back for errors (24 by default).')]
-        int $hours = 24
+        int $hours = 24,
+        #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
+        ?int $limit = null
     ): string {
         $this->setApp();
 
@@ -34,6 +36,14 @@ class ErrorTools
             fn ($carry, $item) => $carry + [$item['group_hash'] => $item],
             []
         );
+
+        // Early return if there are too many errors in a single request
+        if ($limit === null && \count($errors) > 10) {
+            return "Current research for the last {$hours} hours retrieved more than 10 errors. They could flood the context window. "
+                ."You can try to narrow the search by setting a limit or using a shorter time window.";
+        }
+
+        $errors = \array_slice($errors, 0, $limit);
 
         $errorGroups = $this->httpClient()->post("error-groups", [
             'hashes' => \array_map(fn (array $error): string => $error['group_hash'], $errors)
