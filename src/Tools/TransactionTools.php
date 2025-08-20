@@ -26,9 +26,9 @@ class TransactionTools
     ): string {
         $this->setApp();
 
-        $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
+        $start = \date('Y-m-d H:i', \strtotime("-{$hours} hours"));
 
-        $result = $this->httpClient()->get("worst-transactions?filter[start]={$start}")->getBody()->getContents();
+        $result = $this->httpClient()->post("worst-transactions?filter[start]={$start}")->getBody()->getContents();
         $result = \json_decode($result, true);
 
         return (string) new WorstTransactionsReport($result);
