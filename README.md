@@ -31,7 +31,23 @@ The configuration below is for the MCP client like coding agents (Claude Code, G
 }
 ```
 
+You need three information to complete this configuration:
+
+- **Absolute path of the vendor folder**: This is the root path where the vendor folder of your project is located in your computer. The next part is the path to point to the file that runs the MCP server (inspector-apm/mcp-server/server.php)
+- **INSPECTOR_API_KEY**: [Click Here](https://app.inspector.dev/account/api) to generate a new API key
+- **INSPECTOR_APP_ID**: This is the unique identifier of your application inside Inspector. You can get this information in the Application Settings menu in the Inspector dashboatrd
+
 You can get the MCP configuration for your application by navigating to the *Application Settings* section in the [Inspector dashboard](https://app.inspector.dev).
+
+## Claude Code Configuration
+
+Once you have the information above you can connect the Inspector MCP server to Claude Code with the command below:
+
+```
+claude mcp add inspector --env INSPECTOR_API_KEY=YOUR_KEY --env INSPECTOR_APP_ID=YOUR_APP_ID -- php absolute_path_to_your_app_vendor_folder/inspector-apm/mcp-server/server.php
+```
+
+For other agents check out their documentation on how to connect to local (STDIO) MCP servers.
 
 ## What It Does
 
