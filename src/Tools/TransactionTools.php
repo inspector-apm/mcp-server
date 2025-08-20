@@ -28,7 +28,13 @@ class TransactionTools
 
         $start = \date('Y-m-d H:i', \strtotime("-{$hours} hours"));
 
-        $result = $this->httpClient()->post("worst-transactions?filter[start]={$start}")->getBody()->getContents();
+        $result = $this->httpClient()->post("worst-transactions", [
+            'query' => [
+                'filter' => [
+                    'start' => $start,
+                ]
+            ]
+        ])->getBody()->getContents();
         $result = \json_decode($result, true);
 
         return (string) new WorstTransactionsReport($result);
