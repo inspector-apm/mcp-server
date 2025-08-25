@@ -70,12 +70,12 @@ For other agents check out their documentation on how to connect to local (STDIO
 
 ## Available Tools
 
-| Name     |  Description  |           Properties |
-|----------|:-------------:|---------------------:|
-| get_production_errors | Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.  |         (int) $hours |
-| get_error_analysis |   Get detailed error analysis from the production environment including the actual application source file (not just library stack traces), error patterns, code context, occurrence frequency, and structured debugging guidance to help you fix the issue quickly.    | (string) $group_hash |
-| worst_performing_transactions | Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default). A transaction represents an execution cycle of the application. It could be an HTTP request, a background job, or a console command. |         (int) $hours |
-| transaction_details | Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and duration of each task (database queries, cache commands, call to external http services, and so on). |         (int) $hours |
+| Name     |  Description  |                    Properties |
+|----------|:-------------:|------------------------------:|
+| get_production_errors | Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.  | (int) $hours<br/>(int) $limit |
+| get_error_analysis |   Get detailed error analysis from the production environment including the actual application source file (not just library stack traces), error patterns, code context, occurrence frequency, and structured debugging guidance to help you fix the issue quickly.    |          (string) $group_hash |
+| worst_performing_transactions | Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default). A transaction represents an execution cycle of the application. It could be an HTTP request, a background job, or a console command. | (int) $hours<br/>(int) $limit |
+| transaction_details | Retrieve the transaction details and the timeline of all tasks executed during the transaction. The timeline includes the start and duration of each task (database queries, cache commands, call to external http services, and so on). |                  (int) $hours |
 
 ## What It Does
 

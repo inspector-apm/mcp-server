@@ -20,7 +20,6 @@ class ErrorTools
         protected SessionInterface $session,
         protected LoggerInterface $logger
     ){
-        $this->logger->info('ErrorTools initialized', $this->session->all());
     }
 
     /**
@@ -34,6 +33,8 @@ class ErrorTools
         #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
         ?int $limit = null
     ): string {
+        $this->logger->info("list errors session: ", $this->session->all());
+
         $this->setApp();
 
         $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
