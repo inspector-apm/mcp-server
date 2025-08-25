@@ -11,17 +11,24 @@ if (\file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use PhpMcp\Server\Defaults\BasicContainer;
 use PhpMcp\Server\Server;
 use PhpMcp\Server\Transports\StreamableHttpServerTransport;
+use Psr\Log\LoggerInterface;
 
 try {
     // create a log channel
     $logger = new Logger('inspector-mcp');
     $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Debug));
 
+    // Set up the container for dependency injection
+    $container = new BasicContainer();
+    $container->set(LoggerInterface::class, $logger);
+
     $server = Server::make()
         ->withServerInfo('Inspector MCP Server', '1.0.0')
         ->withLogger($logger)
+        ->withContainer($container)
         ->build();
 
     $server->discover(
