@@ -16,20 +16,24 @@ class ErrorTools
 {
     use HttpClientUtils;
 
+    public function __construct(
+        protected LoggerInterface $logger,
+        protected SessionInterface $session,
+    ){
+    }
+
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
     #[McpTool(name: 'get_production_errors', description: "Get recent production errors to debug and fix application issues. Returns a comprehensive analysis of errors, including frequency, severity, affected code locations, and AI-powered recommendations for resolution. Use this tool when investigating application problems, performance issues, or when you need to understand what's currently broken in production. Essential for proactive debugging and maintaining application reliability.")]
     public function listErrorsReport(
-        LoggerInterface $logger,
-        SessionInterface $session,
-        #[Schema(description: 'The number of hours to look back for errors (24 by default).')]
+        #[Schema(description: 'The number of hours to look back for errors (24 by default).', minimum: 3)]
         int $hours = 24,
-        #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
+        #[Schema(description: 'The maximum number of errors to return (10 by default).', minimum: 1)]
         int $limit = 10,
     ): string {
-        $logger->info("list errors session: ", $session->all());
+        $this->logger->info("list errors session: ", $this->session->all());
 
         $this->setApp();
 

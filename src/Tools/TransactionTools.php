@@ -21,9 +21,9 @@ class TransactionTools
      */
     #[McpTool(name: 'worst_performing_transactions', description: 'Retrieve the list of the ten worst performing transactions in the selected time range (24 hours by default). A transaction represents an execution cycle of the application. It could be an HTTP request, a background job, or a console command.')]
     public function worstTransactions(
-        #[Schema(description: 'The number of hours to look back for transactions (24 by default).')]
+        #[Schema(description: 'The number of hours to look back for transactions (24 by default).', minimum: 3)]
         int $hours = 24,
-        #[Schema(description: 'The maximum number of transactions to return. Default null to return all errors.')]
+        #[Schema(description: 'The maximum number of transactions to return (10 by default).', minimum: 1)]
         int $limit = 10
     ): string {
         $this->setApp();
