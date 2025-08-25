@@ -26,7 +26,7 @@ try {
         ->build();
 
     $server->discover(
-        basePath: __DIR__,
+        basePath: __DIR__.'/../',
         scanDirs: ['src/Tools']
     );
 
