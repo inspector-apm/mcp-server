@@ -13,7 +13,6 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use PhpMcp\Server\Defaults\BasicContainer;
 use PhpMcp\Server\Server;
-use PhpMcp\Server\Session\ArraySessionHandler;
 use PhpMcp\Server\Session\Session;
 use PhpMcp\Server\Transports\StreamableHttpServerTransport;
 use Psr\Log\LoggerInterface;
