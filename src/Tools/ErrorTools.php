@@ -16,11 +16,6 @@ class ErrorTools
 {
     use HttpClientUtils;
 
-    public function __construct(
-        protected LoggerInterface $logger
-    ){
-    }
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
@@ -31,9 +26,10 @@ class ErrorTools
         int $hours = 24,
         #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
         ?int $limit = null,
+        LoggerInterface $logger = null,
         SessionInterface $session = null,
     ): string {
-        $this->logger->info("list errors session: ", $session?->all());
+        $logger?->info("list errors session: ", $session?->all());
 
         $this->setApp();
 
