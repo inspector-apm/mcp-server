@@ -6,18 +6,14 @@ and to provide actionable recommendations for root cause analysis and resolution
 
 ## HTTP Streaming Transport (connect to our remote instance)
 
-The HTTP Streaming Transport is the recommended way to connect to the MCP server.
+The HTTP Streaming Transport is the recommended way to connect to the MCP server. You don't need to install anything in your machine.
 Here is the configuration for the MCP client:
 
 ```json
 {
     "mcpServers": {
         "inspector": {
-            "url": "https://mcp.inspector.dev",
-            "env": {
-                "INSPECTOR_API_KEY": "xxxx", // Inspector API key (https://app.inspector.dev/account/api)
-                "INSPECTOR_APP_ID": "xxxx" // The App ID on the Inspector dashboard
-            }
+            "url": "https://mcp.inspector.dev"
         }
     }
 }
