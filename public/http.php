@@ -14,28 +14,37 @@ use Monolog\Handler\StreamHandler;
 use PhpMcp\Server\Server;
 use PhpMcp\Server\Transports\StreamableHttpServerTransport;
 
+try {
 // create a log channel
-$logger = new Logger('inspector-mcp');
-$logger->pushHandler(new StreamHandler(__DIR__.'/../inspector-mcp.log', Level::Warning));
+    $logger = new Logger('inspector-mcp');
+    $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Warning));
 
-$server = Server::make()
-    ->withServerInfo('Inspector MCP Server', '1.0.0')
-    ->withLogger($logger)
-    //->withCache($cache)     // Required for resumability (clients can reconnect and replay missed events)
-    ->build();
+    $server = Server::make()
+        ->withServerInfo('Inspector MCP Server', '1.0.0')
+        ->withLogger($logger)
+        //->withCache($cache)     // Required for resumability (clients can reconnect and replay missed events)
+        ->build();
 
-$server->discover(
-    basePath: __DIR__,
-    scanDirs: ['src/Tools']
-);
+    $server->discover(
+        basePath: __DIR__,
+        scanDirs: ['src/Tools']
+    );
 
 // Create streamable transport with resumability
-$transport = new StreamableHttpServerTransport(
-    host: '127.0.0.1',      // MCP protocol prohibits 0.0.0.0
-    port: 8080,
-    mcpPath: '/',
-    enableJsonResponse: false,  // Use SSE streaming (default)
-    stateless: true            // Enable stateless mode for session-less clients
-);
+    $transport = new StreamableHttpServerTransport(
+        host: '127.0.0.1',      // MCP protocol prohibits 0.0.0.0
+        port: 8080,
+        mcpPath: '/',
+        enableJsonResponse: false,  // Use SSE streaming (default)
+        stateless: true            // Enable stateless mode for session-less clients
+    );
 
-$server->listen($transport);
+    $server->listen($transport);
+    exit(0);
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[MCP SERVER CRITICAL ERROR]\n");
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
+    fwrite(STDERR, 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n");
+    fwrite(STDERR, $e->getTraceAsString() . "\n");
+    exit(1);
+}
