@@ -4,21 +4,6 @@ Inspector MCP Server was built specifically for the PHP ecosystem; this server p
 AI coding agents to access production errors data with comprehensive context, to automatically fix issues,
 and to provide actionable recommendations for root cause analysis and resolution strategies.
 
-## HTTP Streaming Transport (connect to our remote instance)
-
-The HTTP Streaming Transport is the recommended way to connect to the MCP server. You don't need to install anything in your machine.
-Here is the configuration for the MCP client:
-
-```json
-{
-    "mcpServers": {
-        "inspector": {
-            "url": "https://mcp.inspector.dev"
-        }
-    }
-}
-```
-
 ## STDIO Transport (install in your local machine)
 
 ### Install
