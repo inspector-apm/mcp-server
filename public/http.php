@@ -11,8 +11,11 @@ if (\file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use PhpMcp\Server\Contracts\SessionInterface;
 use PhpMcp\Server\Defaults\BasicContainer;
 use PhpMcp\Server\Server;
+use PhpMcp\Server\Session\ArraySessionHandler;
+use PhpMcp\Server\Session\Session;
 use PhpMcp\Server\Transports\StreamableHttpServerTransport;
 use Psr\Log\LoggerInterface;
 
@@ -24,6 +27,7 @@ try {
     // Set up the container for dependency injection
     $container = new BasicContainer();
     $container->set(LoggerInterface::class, $logger);
+    $container->set(SessionInterface::class, new Session(new ArraySessionHandler()));
 
     $server = Server::make()
         ->withServerInfo('Inspector MCP Server', '1.0.0')
