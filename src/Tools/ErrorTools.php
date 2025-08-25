@@ -9,10 +9,19 @@ use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
+use PhpMcp\Server\Contracts\SessionInterface;
+use Psr\Log\LoggerInterface;
 
 class ErrorTools
 {
     use HttpClientUtils;
+
+    public function __construct(
+        protected SessionInterface $session,
+        protected LoggerInterface $logger
+    ){
+        $this->logger->info('ErrorTools initialized', $this->session->all());
+    }
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException

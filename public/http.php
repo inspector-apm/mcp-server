@@ -15,14 +15,13 @@ use PhpMcp\Server\Server;
 use PhpMcp\Server\Transports\StreamableHttpServerTransport;
 
 try {
-// create a log channel
+    // create a log channel
     $logger = new Logger('inspector-mcp');
-    $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Warning));
+    $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Info));
 
     $server = Server::make()
         ->withServerInfo('Inspector MCP Server', '1.0.0')
         ->withLogger($logger)
-        //->withCache($cache)     // Required for resumability (clients can reconnect and replay missed events)
         ->build();
 
     $server->discover(
@@ -30,7 +29,7 @@ try {
         scanDirs: ['src/Tools']
     );
 
-// Create streamable transport with resumability
+// Create streamable transport
     $transport = new StreamableHttpServerTransport(
         host: '127.0.0.1',      // MCP protocol prohibits 0.0.0.0
         port: 8080,
