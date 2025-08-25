@@ -25,11 +25,11 @@ class ErrorTools
         #[Schema(description: 'The number of hours to look back for errors (24 by default).')]
         int $hours = 24,
         #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
-        ?int $limit = null,
+        int $limit = 10,
         LoggerInterface $logger = null,
         SessionInterface $session = null,
     ): string {
-        $logger?->info("list errors session: ", $session?->all());
+        $logger->info("list errors session: ", $session->all());
 
         $this->setApp();
 
@@ -44,8 +44,8 @@ class ErrorTools
         );
 
         // Early return if there are too many errors in a single request
-        if ($limit === null && \count($errors) > 10) {
-            return "Current research for the last {$hours} hours retrieved more than 10 errors. They could flood the context window. "
+        if (\count($errors) > $limit) {
+            return "Current research for the last {$hours} hours retrieved more than {$limit} errors. They could flood the context window. "
                 ."You can try to narrow the search by setting a limit or using a shorter time window.";
         }
 

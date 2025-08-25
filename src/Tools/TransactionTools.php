@@ -24,7 +24,7 @@ class TransactionTools
         #[Schema(description: 'The number of hours to look back for transactions (24 by default).')]
         int $hours = 24,
         #[Schema(description: 'The maximum number of transactions to return. Default null to return all errors.')]
-        ?int $limit = null
+        int $limit = 10
     ): string {
         $this->setApp();
 
@@ -37,11 +37,12 @@ class TransactionTools
                 ]
             ]
         ])->getBody()->getContents();
+
         $transactions = \json_decode($transactions, true);
 
         // Early return if there are too many errors in a single request
-        if ($limit === null && \count($transactions) > 10) {
-            return "Current research for the last {$hours} hours retrieved more than 10 transactions. They could flood the context window. "
+        if (\count($transactions) > $limit) {
+            return "Current research for the last {$hours} hours retrieved more than {$limit} transactions. They could flood the context window. "
                 ."You can try to narrow the search by setting a limit or using a shorter time window.";
         }
 
