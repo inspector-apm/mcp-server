@@ -10,6 +10,7 @@ use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
 use PhpMcp\Server\Contracts\SessionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 class ErrorTools
@@ -18,6 +19,7 @@ class ErrorTools
 
     public function __construct(
         protected LoggerInterface $logger,
+        protected ServerRequestInterface $request,
     ){
     }
 
@@ -32,6 +34,8 @@ class ErrorTools
         #[Schema(description: 'The maximum number of errors to return (10 by default).', minimum: 1)]
         int $limit = 10,
     ): string {
+        $this->logger->info('list error request: ', $this->request->getHeaders());
+
         $this->setApp();
 
         $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
