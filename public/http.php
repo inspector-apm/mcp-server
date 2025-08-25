@@ -21,7 +21,7 @@ $logger->pushHandler(new StreamHandler(__DIR__.'/../inspector-mcp.log', Level::W
 $server = Server::make()
     ->withServerInfo('Inspector MCP Server', '1.0.0')
     ->withLogger($logger)
-    //->withCache($cache)     // Required for resumability
+    //->withCache($cache)     // Required for resumability (clients can reconnect and replay missed events)
     ->build();
 
 $server->discover(
@@ -35,7 +35,7 @@ $transport = new StreamableHttpServerTransport(
     port: 8080,
     mcpPath: '/',
     enableJsonResponse: false,  // Use SSE streaming (default)
-    stateless: false            // Enable stateless mode for session-less clients
+    stateless: true            // Enable stateless mode for session-less clients
 );
 
 $server->listen($transport);
