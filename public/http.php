@@ -17,7 +17,7 @@ use PhpMcp\Server\Transports\StreamableHttpServerTransport;
 try {
     // create a log channel
     $logger = new Logger('inspector-mcp');
-    $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Info));
+    $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Debug));
 
     $server = Server::make()
         ->withServerInfo('Inspector MCP Server', '1.0.0')
