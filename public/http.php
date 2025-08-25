@@ -31,13 +31,11 @@ try {
     // Set up the container for dependency injection
     $container = new BasicContainer();
     $container->set(LoggerInterface::class, $logger);
-    $container->set(SessionInterface::class, $session);
 
     $server = Server::make()
         ->withServerInfo('Inspector MCP Server', '1.0.0')
         ->withLogger($logger)
         ->withContainer($container)
-        ->withSessionHandler($sessionHandler)
         ->build();
 
     $server->discover(

@@ -10,10 +10,16 @@ use Inspector\MCPServer\Reports\TransactionDetailReport;
 use Inspector\MCPServer\Reports\WorstTransactionsReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
+use Psr\Log\LoggerInterface;
 
 class TransactionTools
 {
     use HttpClientUtils;
+
+    public function __construct(
+        protected LoggerInterface $logger,
+    ){
+    }
 
     /**
      * @throws GuzzleException
