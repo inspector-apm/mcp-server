@@ -31,7 +31,7 @@ class TransactionDetailReportTest extends TestCase
                 "url" => [
                     "protocol" => "https",
                     "port" => "80",
-                    "path" => "/index.php",
+                    "path" => "/http.php",
                     "search" => "?",
                     "full" => "https://gestionale.rentincosta.it/api/vehicles/archive"
                 ]
@@ -278,7 +278,7 @@ class TransactionDetailReportTest extends TestCase
 
         // Should contain investigation recommendations
         $this->assertStringContainsString('For detailed investigation', $result);
-        $this->assertStringContainsString('Check route definition for: /index.php', $result);
+        $this->assertStringContainsString('Check route definition for: /http.php', $result);
     }
 
     public function testEmptyTasks(): void
