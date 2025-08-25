@@ -4,7 +4,28 @@ Inspector MCP Server was built specifically for the PHP ecosystem; this server p
 AI coding agents to access production errors data with comprehensive context, to automatically fix issues,
 and to provide actionable recommendations for root cause analysis and resolution strategies.
 
-## Install
+## HTTP Streaming Transport (connect to our remote instance)
+
+The HTTP Streaming Transport is the recommended way to connect to the MCP server.
+Here is the configuration for the MCP client:
+
+```json
+{
+    "mcpServers": {
+        "inspector": {
+            "url": "https://mcp.inspector.dev",
+            "env": {
+                "INSPECTOR_API_KEY": "xxxx", // Inspector API key (https://app.inspector.dev/account/api)
+                "INSPECTOR_APP_ID": "xxxx" // The App ID on the Inspector dashboard
+            }
+        }
+    }
+}
+```
+
+## STDIO Transport (install in your local machine)
+
+### Install
 
 You can install the MCP server as a dev-dependency in your project:
 
@@ -12,7 +33,7 @@ You can install the MCP server as a dev-dependency in your project:
 composer require inspector-apm/mcp-server --dev
 ```
 
-## Client Configuration
+### Client Configuration
 
 The configuration below is for the MCP client like coding agents (Claude Code, Gemini Code Assist, etc), or agentic IDEs like Jetbrains, Windsurf, Cursor, etc.
 
@@ -41,7 +62,7 @@ You need three information to complete this configuration:
 
 You can get the MCP configuration for your application by navigating to the *Application Settings* section in the [Inspector dashboard](https://app.inspector.dev).
 
-## Claude Code Configuration
+### Claude Code Configuration
 
 Once you have the information above you can connect the Inspector MCP server to Claude Code with the command below:
 
