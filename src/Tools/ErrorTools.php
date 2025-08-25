@@ -19,7 +19,6 @@ class ErrorTools
 
     public function __construct(
         protected LoggerInterface $logger,
-        protected ServerRequestInterface $request,
     ){
     }
 
@@ -34,8 +33,6 @@ class ErrorTools
         #[Schema(description: 'The maximum number of errors to return (10 by default).', minimum: 1)]
         int $limit = 10,
     ): string {
-        $this->logger->info('list error request: ', $this->request->getHeaders());
-
         $this->setApp();
 
         $start = \date('Y-m-d H:i:s', \strtotime("-{$hours} hours"));
