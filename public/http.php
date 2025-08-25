@@ -11,7 +11,6 @@ if (\file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-use PhpMcp\Server\Contracts\SessionInterface;
 use PhpMcp\Server\Defaults\BasicContainer;
 use PhpMcp\Server\Server;
 use PhpMcp\Server\Session\ArraySessionHandler;
@@ -43,7 +42,7 @@ try {
         scanDirs: ['src/Tools']
     );
 
-// Create streamable transport
+    // Create streamable transport
     $transport = new StreamableHttpServerTransport(
         host: '127.0.0.1',      // MCP protocol prohibits 0.0.0.0
         port: 8080,
@@ -55,9 +54,9 @@ try {
     $server->listen($transport);
     exit(0);
 } catch (\Throwable $e) {
-    fwrite(STDERR, "[MCP SERVER CRITICAL ERROR]\n");
-    fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
-    fwrite(STDERR, 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n");
-    fwrite(STDERR, $e->getTraceAsString() . "\n");
+    \fwrite(\STDERR, "[MCP SERVER CRITICAL ERROR]\n");
+    \fwrite(\STDERR, 'Error: ' . $e->getMessage() . "\n");
+    \fwrite(\STDERR, 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n");
+    \fwrite(\STDERR, $e->getTraceAsString() . "\n");
     exit(1);
 }

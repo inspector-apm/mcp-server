@@ -9,8 +9,6 @@ use Inspector\MCPServer\Reports\ErrorReport;
 use Inspector\MCPServer\Reports\ErrorsListReport;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
-use PhpMcp\Server\Contracts\SessionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 class ErrorTools
@@ -19,7 +17,7 @@ class ErrorTools
 
     public function __construct(
         protected LoggerInterface $logger,
-    ){
+    ) {
     }
 
     /**

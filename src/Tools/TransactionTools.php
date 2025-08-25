@@ -18,7 +18,7 @@ class TransactionTools
 
     public function __construct(
         protected LoggerInterface $logger,
-    ){
+    ) {
     }
 
     /**
