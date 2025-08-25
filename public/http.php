@@ -23,10 +23,6 @@ try {
     $logger = new Logger('inspector-mcp');
     $logger->pushHandler(new StreamHandler(__DIR__ . '/../inspector-mcp.log', Level::Debug));
 
-    // Session handler
-    $sessionHandler = new ArraySessionHandler();
-    $session = new Session($sessionHandler);
-
     // Set up the container for dependency injection
     $container = new BasicContainer();
     $container->set(LoggerInterface::class, $logger);
