@@ -17,7 +17,6 @@ class ErrorTools
     use HttpClientUtils;
 
     public function __construct(
-        protected SessionInterface $session,
         protected LoggerInterface $logger
     ){
     }
@@ -31,9 +30,10 @@ class ErrorTools
         #[Schema(description: 'The number of hours to look back for errors (24 by default).')]
         int $hours = 24,
         #[Schema(description: 'The maximum number of errors to return. Default null to return all errors.')]
-        ?int $limit = null
+        ?int $limit = null,
+        SessionInterface $session = null,
     ): string {
-        $this->logger->info("list errors session: ", $this->session->all());
+        $this->logger->info("list errors session: ", $session?->all());
 
         $this->setApp();
 
